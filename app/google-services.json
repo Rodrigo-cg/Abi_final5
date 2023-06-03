@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "59108480960",
+    "project_id": "abiv2-3f972",
+    "storage_bucket": "abiv2-3f972.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59108480960:android:22dc93a3358400d6295a25",
+        "android_client_info": {
+          "package_name": "com.Aplication.abi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "59108480960-ak1svdmborqp91ssm33ebbpll7d6anqe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUv8tlHHkjrXYSHnlrqJtpb7nA8GywtK8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "59108480960-ak1svdmborqp91ssm33ebbpll7d6anqe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
