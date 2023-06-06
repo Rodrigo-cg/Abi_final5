@@ -98,7 +98,7 @@ class LoginActivity : AppCompatActivity() {
 
 
     private fun openRegisterActivity() {
-        val intent = Intent(this, RegisterActivity::class.java)
+        val intent = Intent(this, registerpaciente::class.java)
         startActivity(intent)
     }
 
