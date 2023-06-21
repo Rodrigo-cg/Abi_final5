@@ -14,14 +14,17 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.Aplication.abi.R
 import com.Aplication.abi.databinding.ActivityRegisterBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.StorageTask
+import com.google.firebase.storage.ktx.storage
 import com.squareup.picasso.Picasso
 import com.theartofdev.edmodo.cropper.CropImage
 
@@ -48,6 +51,8 @@ class RegisterActivity : AppCompatActivity() {
         private const val REQUEST_IMAGE_CAPTURE = 1
         private const val REQUEST_IMAGE_PICK = 2
         private const val TAG = "MainActivity"
+        private const val PERMISSION_REQUEST_CODE = 3
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,14 +78,27 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         binding.btnRegister.setOnClickListener {
-            selectedImageUri?.let { uri ->
-                val circularImageUri = getCircularImageUri(uri)
-                if (circularImageUri != null) {
-                    uploadImage(circularImageUri)
-                }
-            }
+
+            createuser()
+
         }
 
+        if (!arePermissionsGranted()) {
+            requestPermissions()
+        }
+
+    }
+    private fun arePermissionsGranted(): Boolean {
+        val cameraPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+        val storagePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        return cameraPermission == PackageManager.PERMISSION_GRANTED && storagePermission == PackageManager.PERMISSION_GRANTED
+    }
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE),
+            PERMISSION_REQUEST_CODE
+        )
     }
     private fun dispatchTakePictureIntent() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -126,64 +144,27 @@ class RegisterActivity : AppCompatActivity() {
             outputStream.close()
             return imageUri
         } catch (e: java.lang.Exception) {
-            Log.e(registerpaciente.TAG, "Error al guardar la imagen: ${e.message}")
+            Log.e(TAG, "Error al guardar la imagen: ${e.message}")
         }
 
         return null
     }
-    private fun PickImage() {
-        CropImage.activity().start(this)
-    }
 
-    private fun requestStoragePermission() {
-        requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 100)
-    }
-    private fun requestCameraPermission() {
-        requestPermissions(
-            arrayOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ), 100
-        )
-    }
+    private fun uploadImage(imageUri: Uri) {
+        val storageRef = Firebase.storage.reference
+        val imagesRef = storageRef.child("perfilimag")
+        val profileImageRef = imagesRef.child("profile_image.png")
 
-    private fun checkStoragePermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-    private fun checkCameraPermission(): Boolean {
-        val res1 = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-     /*   val res2 = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-        return res1 && res2 */
-        return  res1
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            val result = CropImage.getActivityResult(data)
-            if (resultCode == RESULT_OK) {
-                image_url = result.uri
-                Picasso.get().load(image_url).into(binding.petPhoto)
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                val error = result.error
+        profileImageRef.putFile(imageUri)
+            .addOnSuccessListener {
+                Log.d(registerpaciente.TAG, "Imagen subida exitosamente")
             }
-        }
+            .addOnFailureListener {
+                Log.e(registerpaciente.TAG, "Error al subir la imagen: ${it.message}")
+            }
     }
 
-    fun openLoginActivity() {
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-    } // End openLoginActivity
-    private fun subirPhoto(image_url: Uri, userID: String) {
+private fun subirPhoto(image_url: Uri, userID: String) {
         progressDialog?.setMessage("Actualizando foto")
         progressDialog?.show()
         val rute_storage_photo: String = (storegapath + "" + photo).toString() + "" + (mAuth?.getUid()

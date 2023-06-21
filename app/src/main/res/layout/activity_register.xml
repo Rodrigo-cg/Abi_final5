@@ -53,13 +53,6 @@
                 android:layout_weight="1"
                 app:srcCompat="@drawable/baseline_file_upload_24" />
 
-            <ImageView
-                android:id="@+id/btn_remove_photo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/baseline_cancel_24" />
-
         </LinearLayout>
 
 
